@@ -18,11 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-fetch DINOv2 weights into image (avoids Facebook CDN call at runtime)
 # torch.hub caches to TORCH_HOME/hub/checkpoints/
 ENV TORCH_HOME=/root/.cache/torch
-RUN python3 -c "
-import torch
-torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True, verbose=False)
-print('DINOv2 weights cached OK')
-"
+RUN python3 -c "import torch; torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True, verbose=False); print('DINOv2 weights cached OK')"
 
 COPY . .
 RUN chmod +x start.sh
