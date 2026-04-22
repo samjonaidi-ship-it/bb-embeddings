@@ -96,11 +96,13 @@ async def embed(req: EmbedRequest,
 
 @app.get("/healthz")
 async def healthz():
-    return {
-        "ok":           _model_loaded,
-        "model_loaded": _model_loaded,
-        "uptime_s":     round(time.monotonic() - _boot_start),
-    }
+    # Return 503 while model is still loading so Railway retries the healthcheck
+    # rather than marking the replica healthy before inference is ready.
+    uptime = round(time.monotonic() - _boot_start)
+    if not _model_loaded:
+        return JSONResponse(status_code=503,
+                            content={"ok": False, "model_loaded": False, "uptime_s": uptime})
+    return {"ok": True, "model_loaded": True, "uptime_s": uptime}
 
 @app.get("/version")
 async def version():
