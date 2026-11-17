@@ -1,4 +1,4 @@
-# bb-embeddings | Dockerfile | v1.0.0 | 2026-04-21 | BB
+# bb-embeddings | Dockerfile | v1.0.1 | 2026-11-17 | BB
 # Pre-bakes DINOv2 ViT-S/14 weights into the image to eliminate CDN dependency
 # at cold-start. Spec: EMBEDDING_SERVICE.md §7 (cold start mitigation).
 
@@ -8,7 +8,7 @@ WORKDIR /app
 
 # System deps for Pillow + torch
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libglib2.0-0 libgl1-mesa-glx \
+    libglib2.0-0 libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python deps first (layer-cached unless requirements.txt changes)
@@ -18,11 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-fetch DINOv2 weights into image (avoids Facebook CDN call at runtime)
 # torch.hub caches to TORCH_HOME/hub/checkpoints/
 ENV TORCH_HOME=/root/.cache/torch
-RUN python3 -c "
-import torch
-torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True, verbose=False)
-print('DINOv2 weights cached OK')
-"
+RUN python3 -c "import torch; torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True, verbose=False); print('DINOv2 weights cached OK')"
 
 COPY . .
 RUN chmod +x start.sh
