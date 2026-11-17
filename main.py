@@ -1,4 +1,4 @@
-# bb-embeddings | main.py | v1.0.0 | 2026-04-21 | BB
+# bb-embeddings | main.py | v1.1.0 | 2026-11-17 | BB
 # FastAPI service: POST /embed -> DINOv2 ViT-S/14 384-dim L2-normalized vector.
 # Spec: EMBEDDING_SERVICE.md v1.0
 # Auth: x-embed-token header equality check (EMBED_SERVICE_TOKEN env var).
@@ -18,7 +18,7 @@ EMBED_TOKEN  = os.getenv("EMBED_SERVICE_TOKEN", "")
 MAX_BYTES    = 256 * 1024      # 256 KB post-base64 cap
 _boot_start  = time.monotonic()
 
-app = FastAPI(title="bb-embeddings", version="1.0.0")
+app = FastAPI(title="bb-embeddings", version="1.1.0")
 
 # ── Model (loaded at startup) ──────────────────────────────────────────────
 _model = None
@@ -107,7 +107,7 @@ async def version():
     import torch
     return {
         "service":       "bb-embeddings",
-        "version":       "1.0.0",
+        "version":       "1.1.0",
         "model":         "dinov2_vits14",
         "torch":         torch.__version__,
     }
