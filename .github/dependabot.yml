@@ -1,0 +1,28 @@
+# Dependabot for bb-embeddings.
+#
+# torch and torchvision are a matched pair: each torchvision release pins one
+# exact torch release (torchvision 0.28.0 requires torch==2.13.0). A PR that
+# bumps only one of them cannot install, which is what happened to #4. The
+# groups below make Dependabot raise them together in one PR.
+#
+# open-pull-requests-limit: 0 turns routine version-update PRs off. Security
+# updates are not affected by that limit and still arrive, grouped.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 0
+    groups:
+      torch:
+        applies-to: version-updates
+        patterns:
+          - torch
+          - torchvision
+      torch-security:
+        applies-to: security-updates
+        patterns:
+          - torch
+          - torchvision
