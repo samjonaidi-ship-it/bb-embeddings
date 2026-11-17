@@ -1,4 +1,4 @@
-# bb-embeddings | model.py | v1.0.0 | 2026-04-21 | BB
+# bb-embeddings | model.py | v1.0.1 | 2026-11-17 | BB
 # DINOv2 ViT-S/14 loader + inference.
 # Spec: EMBEDDING_SERVICE.md §3 (224-crop classification preset, not 518 _reg variant).
 # Output: 384-dim float32 L2-normalized vector, ready for pgvector cosine similarity.
@@ -18,13 +18,22 @@ _TRANSFORM = T.Compose([
 ])
 
 
+HUB_REPO = "facebookresearch/dinov2:main"
+HUB_MODEL = "dinov2_vits14"
+
+
 def load_model():
     """
     Load DINOv2 ViT-S/14 from torch.hub (weights pre-baked into Docker image).
     Runs on CPU; inference ~40ms on a modern Railway shared-vCPU.
     """
-    model = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14",
-                            pretrained=True, verbose=False)
+    # The ref is pinned (":main") and validation is skipped so a load from the
+    # image's cache makes NO network call. Without the ref, torch.hub asks
+    # github.com for the default branch on every boot; without skip_validation
+    # a fresh download asks the GitHub API, whose rate limit failed CI run
+    # 44138711395. CI proves the offline load ("Model loads with no network").
+    model = torch.hub.load(HUB_REPO, HUB_MODEL, pretrained=True, verbose=False,
+                            trust_repo=True, skip_validation=True)
     model.eval()
     # Warm-up forward pass (reduces first-request latency seen by clients).
     with torch.no_grad():

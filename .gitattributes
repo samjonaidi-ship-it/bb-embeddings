@@ -1,0 +1,6 @@
+# Shell scripts and the Dockerfile run on Linux: keep LF on every checkout,
+# including a Windows one that `railway up` uploads from.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
