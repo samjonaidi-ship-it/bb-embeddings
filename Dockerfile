@@ -1,4 +1,4 @@
-# bb-embeddings | Dockerfile | v1.0.1 | 2026-11-17 | BB
+# bb-embeddings | Dockerfile | v1.0.2 | 2026-11-17 | BB
 # Pre-bakes DINOv2 ViT-S/14 weights into the image to eliminate CDN dependency
 # at cold-start. Spec: EMBEDDING_SERVICE.md §7 (cold start mitigation).
 
@@ -18,7 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-fetch DINOv2 weights into image (avoids Facebook CDN call at runtime)
 # torch.hub caches to TORCH_HOME/hub/checkpoints/
 ENV TORCH_HOME=/root/.cache/torch
-RUN python3 -c "import torch; torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14', pretrained=True, verbose=False); print('DINOv2 weights cached OK')"
+# model.py's own loader does the fetch, so the cached repo dir and the runtime
+# load can never disagree on the ref. skip_validation keeps the GitHub API
+# (rate-limited) out of the build.
+COPY model.py .
+RUN python3 -c "from model import load_model; load_model(); print('DINOv2 weights cached OK')"
 
 COPY . .
 RUN chmod +x start.sh

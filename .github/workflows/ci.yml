@@ -1,4 +1,4 @@
-# bb-embeddings | .github/workflows/ci.yml | v1.0.0 | 2026-11-17 | BB
+# bb-embeddings | .github/workflows/ci.yml | v1.0.1 | 2026-11-17 | BB
 # Builds the real Dockerfile and proves the service: golden vectors, then HTTP checks.
 # This repo had no CI before this file. The job name "test" is what a branch
 # protection rule would require.
@@ -34,6 +34,11 @@ jobs:
         run: |
           mkdir -p tests/out
           docker run --rm -v "$PWD/tests:/app/tests" bb-embeddings:ci python3 tests/golden_test.py
+
+      # A boot must not depend on GitHub: with networking off, the model has to
+      # load from the image's own cache.
+      - name: Model loads with no network
+        run: docker run --rm --network none bb-embeddings:ci python3 -c "from model import load_model; load_model(); print('offline load OK')"
 
       - name: Upload the vectors this build produced
         if: always()
