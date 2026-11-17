@@ -1,0 +1,44 @@
+{
+  "_doc": "Risky-path config for bb-embeddings. Read by the local pre-push case-gate (BB_Tools case-gate.mjs). This repo carries no scripts/check-risky-paths.mjs CI job yet, so this file drives the local gate only.",
+  "_label": "The gate is released by a human adding this label. Agents never add it.",
+  "label": "human-reviewed",
+  "categories": [
+    {
+      "name": "ci-and-protection",
+      "gate_critical": true,
+      "why": "the CI workflow and this config are the gate: a change here changes what proves a build",
+      "patterns": [
+        "^\\.github/",
+        "(^|/)risky-paths\\.json$",
+        "(^|/)\\.bb-risk$",
+        "^tests/golden/"
+      ]
+    },
+    {
+      "name": "secrets",
+      "why": "credentials and tokens",
+      "patterns": [
+        "(^|/)\\.env",
+        "(^|/)credentials?[^/]*\\.(json|txt|env)$"
+      ]
+    },
+    {
+      "name": "auth",
+      "why": "main.py holds the x-embed-token check on /embed",
+      "patterns": [
+        "(^|/)main\\.py$"
+      ]
+    },
+    {
+      "name": "deploy-and-model",
+      "why": "the image, its pins and the model code decide every vector the gallery stores; a silent shift breaks matching for rows already in the database",
+      "patterns": [
+        "(^|/)Dockerfile$",
+        "(^|/)requirements\\.txt$",
+        "(^|/)railway\\.json$",
+        "(^|/)start\\.sh$",
+        "(^|/)model\\.py$"
+      ]
+    }
+  ]
+}
